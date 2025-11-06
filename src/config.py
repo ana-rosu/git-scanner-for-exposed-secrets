@@ -21,13 +21,17 @@ SECRET_DETECTION_PROMPT="""
     ```
 
     **Analysis Task:**
-    1.  **Identify Potential Secrets:** Look for API keys, passwords, tokens, etc.
-    2.  **Contextual Evaluation:** Determine if this is a real secret or just a placeholder, example, or test data.
+    1.  **Identify Potential Secrets:** Look for hardcoded API keys, passwords, tokens, or private keys.
+    2.  **Contextual Evaluation:** 
+    - Determine if this is a real secret or just a placeholder, example, test data, or a reference to an environment variable (e.g., process.env.* or os.environ.*).
+    - Only flag secrets that are **directly hardcoded** in the code.
     3.  **Provide a JSON response with the following structure:**
-        - "is_secret": boolean (true if a secret is found, otherwise false)
+        - "is_secret": boolean (true if a hardcoded secret is found, otherwise false)
         - "finding_type": string (e.g., "API Key", "Password", "Private Key")
         - "rationale": string (a brief explanation for your conclusion)
         - "confidence": string ("High", "Medium", or "Low")
+
+    **Important:** Do **not** flag environment variable references or placeholders as secrets.
 
     **Respond ONLY with the JSON object.**
     """
