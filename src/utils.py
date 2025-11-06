@@ -21,7 +21,7 @@ def clean_llm_json_response(raw_string: str) -> str:
     if not isinstance(raw_string, str):
         return None
 
-    # Use regex to find the JSON block between ```json and ``` or just { and }
+    # Use regex to find the JSON block between ``` and ``` or just { and }
     match = re.search(r'\{.*\}', raw_string, re.DOTALL)
     
     if match:

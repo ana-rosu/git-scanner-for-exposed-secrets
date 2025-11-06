@@ -22,19 +22,36 @@ def main():
         default="report.json",
         help="output JSON report file (default: report.json)"
     )
+    parser.add_argument(
+        "-v", "--verbose",
+        action="store_true",
+        help="enable verbose output"
+    )
+    parser.add_argument(
+        "--ignore-files",
+        nargs='+',
+        default=[],
+        help="list of file paths or patterns to ignore during scanning"
+    )
+    parser.add_argument(
+        "--ignore-llms",
+        action="store_true",
+        help="disable LLM analysis for secret detection"
+    )
+
     args = parser.parse_args()
 
     try:
-        findings = scan_repository(args.repo, args.n)
+        findings = scan_repository(args.repo, args.n, verbose=args.verbose, ignore_files=args.ignore_files, ignore_llms=args.ignore_llms)
     except Exception as inst:
         print(str(inst))
         return
 
-    if findings:
-        save_report(findings, args.out)
-        return 
-    
-    print("\nScan complete. No secrets found.")
+    save_report(findings, args.out)
+
+    print(f"\nScan complete. Report saved to {args.out}.")
+    if not findings:
+        print("No secrets found.")
 
 if __name__ == "__main__":
     main()
