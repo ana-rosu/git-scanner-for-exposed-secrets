@@ -32,12 +32,13 @@ def main():
         "--ignore-files",
         nargs='+',
         default=[],
+        metavar="FILE",
         help="list of file paths or patterns to ignore during scanning"
     )
     parser.add_argument(
         "--ignore-llms",
         action="store_true",
-        help="disable LLM analysis for secret detection"
+        help="disable LLM analysis (only use heuristics)"
     )
 
     args = parser.parse_args()
