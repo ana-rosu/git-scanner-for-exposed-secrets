@@ -1,21 +1,40 @@
 from dotenv import load_dotenv
 import json
 import os
-import openai
+import re
 from openai import OpenAI
 from src.config import SECRET_DETECTION_PROMPT, MODEL
-from src.utils import clean_llm_json_response
 
 load_dotenv() 
 
 def get_llm_analysis(snippet: str, commit_message: str, file_path: str) -> dict | None:
+    client = get_openai_client()
+    if not client:
+        return None
+
+    prompt = SECRET_DETECTION_PROMPT.format(
+        file_path=file_path,
+        commit_message=commit_message,
+        snippet=snippet
+    )
+    raw_response = call_llm(client, prompt)
+    if not raw_response:
+        return None
+
+    analysis = parse_llm_json(raw_response)
+    if analysis and analysis.get("is_secret"):
+        return analysis
+
+    return None
+    
+def get_openai_client() -> OpenAI | None:
     api_key = os.environ.get("OPENAI_API_KEY")
     if not api_key:
         print("Warning: OPENAI_API_KEY not set. Skipping LLM analysis.")
         return None
+    return OpenAI(api_key=api_key)
 
-    client = OpenAI(api_key=api_key)
-    prompt = SECRET_DETECTION_PROMPT.format(file_path=file_path, commit_message=commit_message, snippet=snippet)
+def call_llm(client: OpenAI, prompt: str) -> str | None:
     try:
         response = client.chat.completions.create(
             model=MODEL,
@@ -25,28 +44,32 @@ def get_llm_analysis(snippet: str, commit_message: str, file_path: str) -> dict 
             ],
             temperature=0.0,
         )
-
         if not response or not response.choices:
-            print("Error calling OpenAI API: Received an empty response or no choices.")
             return None
-
-        raw_response_content = response.choices[0].message.content
-        cleaned_json_str = clean_llm_json_response(raw_response_content)
-        if not raw_response_content or not cleaned_json_str:
-            print("Error calling OpenAI API: Model returned an empty content string.")
-            return None
-
-        try:
-            analysis = json.loads(cleaned_json_str)
-            if analysis.get("is_secret"):
-                return analysis
-        except json.JSONDecodeError:
-            print(f"Error: Failed to decode JSON from LLM response. The model returned:\n---\n{cleaned_json_str}\n---")
-            return None
-
-    except openai.APIError as e:
-        print(f"An OpenAI API error occurred: {e}")
+        return response.choices[0].message.content
     except Exception as e:
-        print(f"An unexpected error occurred during LLM analysis: {e}")
+        print(f"OpenAI call failed: {e}")
+        return None
 
-    return None
+def parse_llm_json(raw: str) -> dict | None:
+    cleaned = clean_llm_json_response(raw)
+    try:
+        return json.loads(cleaned)
+    except Exception:
+        print(f"Failed to parse JSON from model:\n---\n{cleaned}\n---")
+        return None
+
+def clean_llm_json_response(raw_string: str) -> str:
+    if not isinstance(raw_string, str):
+        return None
+
+    # Use regex to find the JSON block between ``` and ``` or just { and }
+    match = re.search(r'\{.*\}', raw_string, re.DOTALL)
+    
+    if match:
+        return match.group(0)
+    else:
+        # Return the original string if no JSON object is found,
+        # allowing the parser to fail and log the problematic string.
+        return raw_string
+
