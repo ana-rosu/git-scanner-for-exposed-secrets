@@ -1,10 +1,18 @@
-[
-    {
-        "commit_hash": "1f9b44028c10fba5fe66d59aed18a28155e72cf6",
-        "file_path": "src/firebase-messaging-sw.js",
-        "snippet": "apiKey: \"AIzaSyBV-a2Gz4jdFq5zBHLRYCn_duY1ccw3JnA\",",
-        "finding_type": "Heuristic: api_key",
-        "rationale": "Matched regex for api_key",
-        "confidence": "Medium"
-    }
-]
+{
+    "scan_metadata": {
+        "repository": "https://github.com/ana-rosu/BRAIN-app.git",
+        "commits_requested": 10,
+        "scan_date": "2025-11-06T20:34:21.045881"
+    },
+    "findings": [
+        {
+            "commit_hash": "1f9b44028c10fba5fe66d59aed18a28155e72cf6",
+            "file_path": "src/firebase-messaging-sw.js",
+            "snippet": "+);\n+const firebaseConfig = {\n+  apiKey: \"AIzaSyBV-a2Gz4jdFq5zBHLRYCn_duY1ccw3JnA\",\n+  authDomain: \"brain-pwa.firebaseapp.com\",",
+            "is_secret": true,
+            "finding_type": "API Key",
+            "rationale": "Hardcoded API key present in the code",
+            "confidence": "High"
+        }
+    ]
+}

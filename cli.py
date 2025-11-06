@@ -1,6 +1,7 @@
 import argparse
 from src.repo_scanner import scan_repository
 from src.reporting import save_report
+from datetime import datetime
 
 def main():
     parser = argparse.ArgumentParser(
@@ -42,12 +43,27 @@ def main():
     args = parser.parse_args()
 
     try:
-        findings = scan_repository(args.repo, args.n, verbose=args.verbose, ignore_files=args.ignore_files, ignore_llms=args.ignore_llms)
+        findings = scan_repository(
+            repo_path=args.repo,
+            n_commits=args.n,
+            verbose=args.verbose,
+            ignore_files=args.ignore_files,
+            ignore_llms=args.ignore_llms
+        )
     except Exception as inst:
         print(str(inst))
         return
+    
+    report_data = {
+        "scan_metadata": {
+            "repository": args.repo,
+            "commits_requested": args.n,
+            "scan_date": datetime.utcnow().isoformat(),
+        },
+        "findings": findings
+    }
 
-    save_report(findings, args.out)
+    save_report(report_data, args.out)
 
     print(f"\nScan complete. Report saved to {args.out}.")
     if not findings:
