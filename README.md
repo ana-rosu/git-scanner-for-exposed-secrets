@@ -1,6 +1,6 @@
 # Git Secret Scanner
 
-An LLM-powered tool to scan Git repositories for hardcoded secrets and sensitive data (API keys, passwords, tokens, private keys, etc.) by analyzing commit diffs and messages. Uses a combination of **heuristic patterns** and **LLM verification**
+An LLM-powered tool to scan Git repositories for hardcoded secrets (API keys, passwords, tokens, private keys, etc.) by analyzing commit diffs and messages. It uses a combination of **heuristic patterns** and **LLM verification**.
 
 ## Installation
 
