@@ -1,0 +1,10 @@
+[
+    {
+        "commit_hash": "1f9b44028c10fba5fe66d59aed18a28155e72cf6",
+        "file_path": "src/firebase-messaging-sw.js",
+        "snippet": "apiKey: \"AIzaSyBV-a2Gz4jdFq5zBHLRYCn_duY1ccw3JnA\",",
+        "finding_type": "Heuristic: api_key",
+        "rationale": "Matched regex for api_key",
+        "confidence": "Medium"
+    }
+]
