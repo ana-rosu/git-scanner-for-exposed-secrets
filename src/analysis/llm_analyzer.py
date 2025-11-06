@@ -1,10 +1,10 @@
 from dotenv import load_dotenv
-from src.config import SECRET_DETECTION_PROMPT
-from src.utils import clean_llm_json_response
 import json
 import os
 import openai
 from openai import OpenAI
+from src.config import SECRET_DETECTION_PROMPT, MODEL
+from src.utils import clean_llm_json_response
 
 load_dotenv() 
 
@@ -18,7 +18,7 @@ def get_llm_analysis(snippet: str, commit_message: str, file_path: str) -> dict 
     prompt = SECRET_DETECTION_PROMPT.format(file_path=file_path, commit_message=commit_message, snippet=snippet)
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model=MODEL,
             messages=[
                 {"role": "system", "content": "You are a security assistant that provides analysis in JSON format."},
                 {"role": "user", "content": prompt}
